@@ -68,6 +68,7 @@ const state = {
 
 const elements = {
   homeLayout: document.querySelector("#homeLayout"),
+  navAction: document.querySelector("#navAction"),
   setupPanel: document.querySelector("#setupPanel"),
   taskPanel: document.querySelector("#taskPanel"),
   resultsPanel: document.querySelector("#resultsPanel"),
@@ -82,7 +83,6 @@ const elements = {
   scoreText: document.querySelector("#scoreText"),
   handImage: document.querySelector("#handImage"),
   demoHand: document.querySelector("#demoHand"),
-  endButton: document.querySelector("#endButton"),
   scoreMetric: document.querySelector("#scoreMetric"),
   accuracyMetric: document.querySelector("#accuracyMetric"),
   timeMetric: document.querySelector("#timeMetric"),
@@ -94,9 +94,14 @@ const elements = {
 
 elements.trialCount.addEventListener("input", updateStartState);
 elements.startButton.addEventListener("click", startSession);
-elements.endButton.addEventListener("click", finishSession);
 elements.restartButton.addEventListener("click", startSession);
 elements.newSetupButton.addEventListener("click", showSetup);
+elements.navAction.addEventListener("click", (event) => {
+  if (!document.body.classList.contains("session-active")) return;
+
+  event.preventDefault();
+  finishSession();
+});
 
 document.querySelectorAll("[data-answer]").forEach((button) => {
   button.addEventListener("click", () => submitAnswer(button.dataset.answer));
@@ -127,6 +132,7 @@ function startSession() {
   elements.resultsPanel.classList.add("hidden");
   elements.taskPanel.classList.remove("hidden");
   document.body.classList.add("session-active");
+  setNavAction("session");
   setQuestionHeader();
   elements.timer.textContent = formatTime(0);
 
@@ -181,6 +187,7 @@ function finishSession() {
   elements.resultsPanel.classList.remove("hidden");
   elements.homeLayout.classList.add("hidden");
   document.body.classList.remove("session-active");
+  setNavAction("contact");
   setQuestionHeader();
   elements.scoreMetric.textContent = `${state.correct} / ${total}`;
   elements.accuracyMetric.textContent = `${accuracy}%`;
@@ -214,6 +221,7 @@ function showSetup() {
   elements.homeLayout.classList.remove("hidden");
   elements.setupPanel.classList.remove("hidden");
   document.body.classList.remove("session-active");
+  setNavAction("contact");
   setQuestionHeader();
 }
 
@@ -237,8 +245,22 @@ function getRequestedTrialCount() {
 }
 
 function initializeImages() {
+  setNavAction("contact");
   setQuestionHeader();
   updateStartState();
+}
+
+function setNavAction(mode) {
+  if (mode === "session") {
+    elements.navAction.textContent = "End Session";
+    elements.navAction.href = "#end-session";
+    elements.navAction.setAttribute("aria-label", "End current session");
+    return;
+  }
+
+  elements.navAction.textContent = "Contact";
+  elements.navAction.href = "https://www.striveptlv.com/independence/contact.html";
+  elements.navAction.setAttribute("aria-label", "Contact STRIVE Independence");
 }
 
 function setQuestionHeader() {

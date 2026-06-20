@@ -162,6 +162,15 @@ nav {
   background: var(--blue-dark);
 }
 
+.session-active .contact-button {
+  background: #ce2029;
+  box-shadow: 0 12px 24px rgba(206, 32, 41, 0.18);
+}
+
+.session-active .contact-button:hover {
+  background: #a9151d;
+}
+
 .app-shell {
   max-width: 1260px;
   margin: 0 auto;
@@ -516,7 +525,6 @@ h2 {
 
 .primary-button,
 .secondary-button,
-.quiet-button,
 .answer-button {
   min-height: 54px;
   border-radius: 7px;
@@ -548,15 +556,13 @@ h2 {
   background: var(--blue-dark);
 }
 
-.secondary-button,
-.quiet-button {
+.secondary-button {
   background: #ffffff;
   color: var(--navy);
   border-color: var(--line-m);
 }
 
-.secondary-button:hover,
-.quiet-button:hover {
+.secondary-button:hover {
   border-color: rgba(23, 35, 31, 0.34);
 }
 
@@ -687,27 +693,6 @@ h2 {
 
 .right-choice:hover {
   background: var(--blue-dark);
-}
-
-.quiet-button {
-  margin: 0 18px 18px auto;
-}
-
-#endButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: max-content;
-  min-width: 180px;
-  background: #ce2029;
-  color: #fff;
-  border-color: #ce2029;
-  box-shadow: 0 12px 24px rgba(206, 32, 41, 0.18);
-}
-
-#endButton:hover {
-  background: #a9151d;
-  border-color: #a9151d;
 }
 
 .metric-grid {
