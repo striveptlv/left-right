@@ -1,4 +1,6 @@
 const MAX_TRIALS = 50;
+const SPEED_NORM_MIN_SECONDS = 1.5;
+const SPEED_NORM_MAX_SECONDS = 2.5;
 const DIRECT_IMAGES = [
   { side: "left", name: "pexels-75705723-8569753.jpg", url: "Left/pexels-75705723-8569753.jpg" },
   { side: "left", name: "pexels-andy-urdaneta-294961611-13890757.jpg", url: "Left/pexels-andy-urdaneta-294961611-13890757.jpg" },
@@ -172,6 +174,7 @@ function submitAnswer(answer) {
 
   state.answers.push({
     image: trial.name,
+    url: trial.url,
     setNumber: trial.setNumber,
     itemNumber: trial.itemNumber,
     correctSide: trial.side,
@@ -223,15 +226,28 @@ function renderMissedItems() {
   const missed = state.answers.filter((answer) => !answer.isCorrect);
 
   if (!missed.length) {
-    elements.missedList.innerHTML = "<strong>No missed items.</strong>";
+    elements.missedList.innerHTML = '<div class="missed-empty">No missed items.</div>';
     return;
   }
 
-  const listItems = missed
-    .map((item) => `<li>${escapeHtml(item.image)}: answered ${item.answer}, correct was ${item.correctSide}</li>`)
+  const photoItems = missed
+    .map((item) => `
+      <figure class="missed-photo">
+        <img src="${escapeHtml(item.url)}" alt="Missed hand item from set ${item.setNumber}, picture ${item.itemNumber}" loading="lazy" />
+        <figcaption>Set ${item.setNumber} · Picture ${item.itemNumber}</figcaption>
+      </figure>
+    `)
     .join("");
 
-  elements.missedList.innerHTML = `<strong>Missed items</strong><ul>${listItems}</ul>`;
+  elements.missedList.innerHTML = `
+    <details class="missed-details">
+      <summary>
+        <span>Missed items</span>
+        <strong>${missed.length} ${missed.length === 1 ? "photo" : "photos"}</strong>
+      </summary>
+      <div class="missed-photo-grid">${photoItems}</div>
+    </details>
+  `;
 }
 
 function showSetup() {
@@ -350,17 +366,84 @@ function generateSoapNote({ total, accuracy, rate, missedCount, plannedTotal }) 
   const scorePhrase = `${state.correct}/${total} correct (${accuracy}% accuracy)`;
   const timePhrase = `${formatTime(state.elapsedSeconds)} with a response rate of ${rate} images/min`;
   const errorPhrase = missedCount === 0 ? "no left/right discrimination errors" : `${missedCount} left/right discrimination ${missedCount === 1 ? "error" : "errors"}`;
+  const speedPhrase = getSpeedInterpretation(total, missedCount);
+  const trendPhrase = getSetTrendInterpretation();
+  const performancePhrase = trendPhrase ? `${speedPhrase} ${trendPhrase}` : speedPhrase;
   const noteOptions = [
-    `Patient participated in STRIVE Independence left-right discrimination activity and was instructed to identify whether each image showed a left or right hand. Patient ${participationPhrase}, scoring ${scorePhrase} in ${timePhrase}, with ${errorPhrase}. Performance indicates current visual laterality discrimination accuracy and processing speed during a timed recognition task. Continue left-right discrimination training with graded image volume and monitor accuracy, response speed, and consistency across sets.`,
-    `Patient engaged in a timed hand laterality task targeting left/right discrimination. Patient ${participationPhrase} and identified ${scorePhrase}; total task time was ${timePhrase}, with ${errorPhrase}. Patient demonstrated measurable performance in visual discrimination, attention, and rapid motor response selection. Continue practice using STRIVE Independence tasks and adjust set/image count based on accuracy and fatigue.`,
-    `Patient completed left-right hand identification practice to support body schema, laterality, and visual perceptual skills. Patient ${participationPhrase}, achieved ${scorePhrase} in ${timePhrase}, and session included ${errorPhrase}. Results suggest functional level of accuracy and speed for left/right discrimination under timed conditions. Progress or maintain task demands by modifying sets, image count, and pacing during future sessions.`,
-    `Patient worked on a structured left-right discrimination activity using randomized hand images. Patient ${participationPhrase}, with ${scorePhrase}, task time/rate of ${timePhrase}, and ${errorPhrase}. Results give a practical snapshot of laterality recognition, attention to visual details, and response efficiency. Continue practice with repeated trials and compare performance across sessions to guide grading.`,
-    `Patient was presented with randomized hand images and asked to select left or right for each stimulus. Patient ${participationPhrase}; score was ${scorePhrase}, time/rate was ${timePhrase}, and errors totaled ${missedCount}. Patient demonstrated current capacity for timed left-right visual discrimination with documented accuracy and speed. Continue left-right discrimination practice and increase or decrease set volume according to performance and clinical tolerance.`,
-    `Patient engaged in left-right discrimination task as part of STRIVE Independence visual perceptual training. Patient ${participationPhrase}, correctly identifying ${scorePhrase} with total time/rate of ${timePhrase} and ${errorPhrase}. Performance reflects visual scanning, laterality judgment, sustained attention, and decision speed during a structured task. Continue task-based training and use accuracy/time data to support ongoing documentation and progression.`,
-    `Patient practiced identifying left versus right hand images in a timed therapeutic activity. Patient ${participationPhrase} and scored ${scorePhrase}; completion time was ${timePhrase}, with ${errorPhrase}. Patient showed quantifiable left-right discrimination performance with objective measures for accuracy and efficiency. Continue STRIVE Independence laterality training, repeat comparable sets, and track changes in score, time, and error pattern over time.`
+    `Patient participated in STRIVE Independence left-right discrimination activity and was instructed to identify whether each image showed a left or right hand. Patient ${participationPhrase}, scoring ${scorePhrase} in ${timePhrase}, with ${errorPhrase}. ${performancePhrase} Performance indicates current visual laterality discrimination accuracy and processing speed during a timed recognition task. Continue left-right discrimination training with graded image volume and monitor accuracy, response speed, and consistency across sets.`,
+    `Patient engaged in a timed hand laterality task targeting left/right discrimination. Patient ${participationPhrase} and identified ${scorePhrase}; total task time was ${timePhrase}, with ${errorPhrase}. ${performancePhrase} Patient demonstrated measurable performance in visual discrimination, attention, and rapid motor response selection. Continue practice using STRIVE Independence tasks and adjust set/image count based on accuracy and fatigue.`,
+    `Patient completed left-right hand identification practice to support body schema, laterality, and visual perceptual skills. Patient ${participationPhrase}, achieved ${scorePhrase} in ${timePhrase}, and session included ${errorPhrase}. ${performancePhrase} Results suggest functional level of accuracy and speed for left/right discrimination under timed conditions. Progress or maintain task demands by modifying sets, image count, and pacing during future sessions.`,
+    `Patient worked on a structured left-right discrimination activity using randomized hand images. Patient ${participationPhrase}, with ${scorePhrase}, task time/rate of ${timePhrase}, and ${errorPhrase}. ${performancePhrase} Results give a practical snapshot of laterality recognition, attention to visual details, and response efficiency. Continue practice with repeated trials and compare performance across sessions to guide grading.`,
+    `Patient was presented with randomized hand images and asked to select left or right for each stimulus. Patient ${participationPhrase}; score was ${scorePhrase}, time/rate was ${timePhrase}, and errors totaled ${missedCount}. ${performancePhrase} Patient demonstrated current capacity for timed left-right visual discrimination with documented accuracy and speed. Continue left-right discrimination practice and increase or decrease set volume according to performance and clinical tolerance.`,
+    `Patient engaged in left-right discrimination task as part of STRIVE Independence visual perceptual training. Patient ${participationPhrase}, correctly identifying ${scorePhrase} with total time/rate of ${timePhrase} and ${errorPhrase}. ${performancePhrase} Performance reflects visual scanning, laterality judgment, sustained attention, and decision speed during a structured task. Continue task-based training and use accuracy/time data to support ongoing documentation and progression.`,
+    `Patient practiced identifying left versus right hand images in a timed therapeutic activity. Patient ${participationPhrase} and scored ${scorePhrase}; completion time was ${timePhrase}, with ${errorPhrase}. ${performancePhrase} Patient showed quantifiable left-right discrimination performance with objective measures for accuracy and efficiency. Continue STRIVE Independence laterality training, repeat comparable sets, and track changes in score, time, and error pattern over time.`
   ];
 
   return noteOptions[Math.floor(Math.random() * noteOptions.length)];
+}
+
+function getSpeedInterpretation(total, missedCount) {
+  if (!total) {
+    return `Speed comparison was not calculated because no responses were recorded; average reference speed is ${SPEED_NORM_MIN_SECONDS}-${SPEED_NORM_MAX_SECONDS} seconds per hand/foot image.`;
+  }
+
+  const secondsPerImage = state.elapsedSeconds / total;
+  const roundedSeconds = secondsPerImage.toFixed(1);
+  const accuracyRatio = total ? state.correct / total : 0;
+  const recognitionWasGood = accuracyRatio > 0.7;
+  const normPhrase = `average reference speed is ${SPEED_NORM_MIN_SECONDS}-${SPEED_NORM_MAX_SECONDS} seconds per hand/foot image`;
+
+  if (secondsPerImage < SPEED_NORM_MIN_SECONDS) {
+    const accuracyContext = missedCount > 0
+      ? "with errors present, which may suggest the patient rushed the activity and prioritized speed over accuracy"
+      : "while maintaining accurate recognition during this trial";
+    return `Average speed was ${roundedSeconds} seconds per image, faster than average (${normPhrase}); ${accuracyContext}.`;
+  }
+
+  if (secondsPerImage > SPEED_NORM_MAX_SECONDS) {
+    const accuracyContext = recognitionWasGood
+      ? "recognition remained good at greater than 7/10 accuracy, suggesting deliberate processing with preserved discrimination"
+      : "accuracy was also reduced, suggesting increased processing time with difficulty in left-right discrimination";
+    return `Average speed was ${roundedSeconds} seconds per image, slower than average (${normPhrase}); ${accuracyContext}.`;
+  }
+
+  return `Average speed was ${roundedSeconds} seconds per image, within the average range (${normPhrase}).`;
+}
+
+function getSetTrendInterpretation() {
+  if (state.setCount < 2) return "";
+
+  const setSummaries = Array.from({ length: state.setCount }, (_, index) => {
+    const setNumber = index + 1;
+    const answers = state.answers.filter((answer) => answer.setNumber === setNumber);
+    const correct = answers.filter((answer) => answer.isCorrect).length;
+    const total = answers.length;
+    const accuracy = total ? correct / total : 0;
+
+    return { setNumber, correct, total, accuracy };
+  }).filter((summary) => summary.total > 0);
+
+  if (setSummaries.length < 2) return "";
+
+  const first = setSummaries[0];
+  const last = setSummaries[setSummaries.length - 1];
+  const improvedWithRepetition = last.accuracy - first.accuracy >= 0.1 && last.correct > first.correct;
+  const fatiguePattern = first.accuracy >= 0.8 && first.accuracy - last.accuracy >= 0.2;
+  const steadyDecline = setSummaries.every((summary, index) => index === 0 || summary.accuracy <= setSummaries[index - 1].accuracy);
+  const steadyImprovement = setSummaries.every((summary, index) => index === 0 || summary.accuracy >= setSummaries[index - 1].accuracy);
+  const setScorePhrase = setSummaries
+    .map((summary) => `set ${summary.setNumber}: ${summary.correct}/${summary.total}`)
+    .join(", ");
+
+  if (fatiguePattern || (steadyDecline && first.accuracy > last.accuracy)) {
+    return `Set pattern (${setScorePhrase}) showed stronger initial performance followed by lower accuracy, which may indicate mental fatigue or reduced consistency as the activity continued.`;
+  }
+
+  if (improvedWithRepetition || (steadyImprovement && last.accuracy > first.accuracy)) {
+    return `Set pattern (${setScorePhrase}) showed improved recognition with repetition, suggesting benefit from practice and task familiarity across sets.`;
+  }
+
+  return `Set pattern (${setScorePhrase}) was relatively stable without a clear repetition gain or fatigue-related decline.`;
 }
 
 async function copySoapNote(note, button) {
