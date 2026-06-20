@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="./styles.css?v=nav-end-only-1" />
+    <link rel="stylesheet" href="./styles.css?v=settings-stack-1" />
   </head>
   <body>
     <nav aria-label="STRIVE Independence">
@@ -58,14 +58,15 @@
                   <li>Look at each hand picture.</li>
                   <li>Decide whether it shows a left hand or a right hand.</li>
                   <li>Press the matching button as quickly and accurately as you can.</li>
+                  <li>When STRIVE AI is on, a short note will be generated from the session results.</li>
                 </ol>
               </div>
 
               <div class="slider-control">
                 <label class="field" for="trialCount">
-                  <span>Pictures to show</span>
+                  <span>Images per set</span>
                 </label>
-                <div class="slider-value"><strong id="trialCountValue">10</strong> pictures</div>
+                <div class="slider-value"><strong id="trialCountValue">10</strong></div>
                 <input id="trialCount" type="range" min="10" max="50" step="10" value="10" list="trialStops" />
                 <datalist id="trialStops">
                   <option value="10" label="10"></option>
@@ -81,6 +82,27 @@
                   <span>40</span>
                   <span>50</span>
                 </div>
+              </div>
+
+              <div class="session-settings" aria-label="Documentation and set settings">
+                <label class="field" for="setCount">
+                  <span>Sets</span>
+                  <select id="setCount">
+                    <option value="1">1 set</option>
+                    <option value="2">2 sets</option>
+                    <option value="3">3 sets</option>
+                    <option value="4">4 sets</option>
+                    <option value="5">5 sets</option>
+                  </select>
+                </label>
+
+                <label class="ai-toggle">
+                  <input id="striveAiToggle" type="checkbox" checked />
+                  <span>
+                    <strong>STRIVE AI</strong>
+                    <small>Use the session score, timing, and errors to draft a quick note after the activity.</small>
+                  </span>
+                </label>
               </div>
             </div>
           </div>
@@ -130,6 +152,12 @@
 
         <div class="missed-list" id="missedList"></div>
 
+        <section class="soap-panel hidden" id="soapPanel" aria-label="STRIVE AI SOAP note options">
+          <div class="section-tag">STRIVE AI</div>
+          <h2>SOAP Note</h2>
+          <div class="soap-list" id="soapList"></div>
+        </section>
+
         <div class="actions">
           <button class="primary-button" id="restartButton" type="button">Run Again</button>
           <button class="secondary-button" id="newSetupButton" type="button">New Setup</button>
@@ -137,6 +165,6 @@
       </section>
     </main>
 
-    <script src="./app.js?v=nav-end-only-1"></script>
+    <script src="./app.js?v=settings-stack-1"></script>
   </body>
 </html>

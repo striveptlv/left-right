@@ -60,6 +60,9 @@ const state = {
   currentIndex: 0,
   correct: 0,
   answers: [],
+  imagesPerSet: 10,
+  setCount: 1,
+  striveAiEnabled: true,
   startedAt: 0,
   timerId: null,
   elapsedSeconds: 0,
@@ -77,6 +80,8 @@ const elements = {
   moduleDescription: document.querySelector("#moduleDescription"),
   trialCount: document.querySelector("#trialCount"),
   trialCountValue: document.querySelector("#trialCountValue"),
+  setCount: document.querySelector("#setCount"),
+  striveAiToggle: document.querySelector("#striveAiToggle"),
   startButton: document.querySelector("#startButton"),
   timer: document.querySelector("#timer"),
   progressText: document.querySelector("#progressText"),
@@ -88,11 +93,15 @@ const elements = {
   timeMetric: document.querySelector("#timeMetric"),
   rateMetric: document.querySelector("#rateMetric"),
   missedList: document.querySelector("#missedList"),
+  soapPanel: document.querySelector("#soapPanel"),
+  soapList: document.querySelector("#soapList"),
   restartButton: document.querySelector("#restartButton"),
   newSetupButton: document.querySelector("#newSetupButton")
 };
 
 elements.trialCount.addEventListener("input", updateStartState);
+elements.setCount.addEventListener("change", updateStartState);
+elements.striveAiToggle.addEventListener("change", updateStartState);
 elements.startButton.addEventListener("click", startSession);
 elements.restartButton.addEventListener("click", startSession);
 elements.newSetupButton.addEventListener("click", showSetup);
@@ -110,18 +119,20 @@ document.querySelectorAll("[data-answer]").forEach((button) => {
 initializeImages();
 
 function updateStartState() {
-  const requested = getRequestedTrialCount();
-  elements.startButton.disabled = state.images.length === 0 || requested < 1;
-  elements.trialCountValue.textContent = requested;
+  state.imagesPerSet = getRequestedTrialCount();
+  state.setCount = getRequestedSetCount();
+  state.striveAiEnabled = elements.striveAiToggle.checked;
+  elements.startButton.disabled = state.images.length === 0 || state.imagesPerSet < 1 || state.setCount < 1;
+  elements.trialCountValue.textContent = state.imagesPerSet;
 }
 
 function startSession() {
-  const requested = getRequestedTrialCount();
+  updateStartState();
 
   if (!state.images.length) return;
 
   state.demoMode = false;
-  state.trials = shuffle(state.images).slice(0, Math.min(requested, state.images.length, MAX_TRIALS));
+  state.trials = buildSessionTrials(state.imagesPerSet, state.setCount);
   state.currentIndex = 0;
   state.correct = 0;
   state.answers = [];
@@ -130,6 +141,7 @@ function startSession() {
   elements.setupPanel.classList.add("hidden");
   elements.homeLayout.classList.add("hidden");
   elements.resultsPanel.classList.add("hidden");
+  elements.soapPanel.classList.add("hidden");
   elements.taskPanel.classList.remove("hidden");
   document.body.classList.add("session-active");
   setNavAction("session");
@@ -145,7 +157,7 @@ function startSession() {
 
 function showCurrentTrial() {
   const trial = state.trials[state.currentIndex];
-  elements.progressText.textContent = `Picture ${state.currentIndex + 1} of ${state.trials.length}`;
+  elements.progressText.textContent = `Set ${trial.setNumber} of ${state.setCount} | Picture ${trial.itemNumber} of ${state.imagesPerSet}`;
   elements.scoreText.textContent = `Correct: ${state.correct}`;
   elements.demoHand.classList.add("hidden");
   elements.handImage.classList.remove("hidden");
@@ -160,6 +172,8 @@ function submitAnswer(answer) {
 
   state.answers.push({
     image: trial.name,
+    setNumber: trial.setNumber,
+    itemNumber: trial.itemNumber,
     correctSide: trial.side,
     answer,
     isCorrect
@@ -196,6 +210,13 @@ function finishSession() {
   elements.scoreText.textContent = `Correct: ${state.correct}`;
 
   renderMissedItems();
+  renderSoapNotes({
+    total,
+    accuracy,
+    rate,
+    missedCount: total - state.correct,
+    plannedTotal: state.trials.length
+  });
 }
 
 function renderMissedItems() {
@@ -218,6 +239,7 @@ function showSetup() {
   elements.timer.textContent = "00:00";
   elements.taskPanel.classList.add("hidden");
   elements.resultsPanel.classList.add("hidden");
+  elements.soapPanel.classList.add("hidden");
   elements.homeLayout.classList.remove("hidden");
   elements.setupPanel.classList.remove("hidden");
   document.body.classList.remove("session-active");
@@ -242,6 +264,30 @@ function getRequestedTrialCount() {
   }
 
   return cappedValue;
+}
+
+function getRequestedSetCount() {
+  const rawValue = Number.parseInt(elements.setCount.value, 10);
+  const safeValue = Number.isFinite(rawValue) ? rawValue : 1;
+  return Math.max(1, Math.min(5, safeValue));
+}
+
+function buildSessionTrials(imagesPerSet, setCount) {
+  const cappedImagesPerSet = Math.min(imagesPerSet, state.images.length, MAX_TRIALS);
+  const trials = [];
+
+  for (let setIndex = 0; setIndex < setCount; setIndex += 1) {
+    const setImages = shuffle(state.images).slice(0, cappedImagesPerSet);
+    setImages.forEach((image, itemIndex) => {
+      trials.push({
+        ...image,
+        setNumber: setIndex + 1,
+        itemNumber: itemIndex + 1
+      });
+    });
+  }
+
+  return trials;
 }
 
 function initializeImages() {
@@ -269,6 +315,67 @@ function setQuestionHeader() {
     <span class="or-word">or</span>
     <span class="right-word">Right</span><span class="question-mark">?</span>
   `;
+}
+
+function renderSoapNotes(summary) {
+  elements.soapList.innerHTML = "";
+
+  if (!state.striveAiEnabled) {
+    elements.soapPanel.classList.add("hidden");
+    return;
+  }
+
+  const note = generateSoapNote(summary);
+  const option = document.createElement("article");
+  option.className = "soap-option";
+
+  const paragraph = document.createElement("p");
+  paragraph.textContent = note;
+
+  const copyButton = document.createElement("button");
+  copyButton.className = "copy-soap-button";
+  copyButton.type = "button";
+  copyButton.textContent = "Copy SOAP note";
+  copyButton.addEventListener("click", () => copySoapNote(note, copyButton));
+
+  option.append(paragraph, copyButton);
+  elements.soapList.append(option);
+
+  elements.soapPanel.classList.remove("hidden");
+}
+
+function generateSoapNote({ total, accuracy, rate, missedCount, plannedTotal }) {
+  const setPhrase = `${state.setCount} ${state.setCount === 1 ? "set" : "sets"} of ${state.imagesPerSet} images`;
+  const participationPhrase = total >= plannedTotal ? `completed ${setPhrase}` : `attempted ${total} of ${plannedTotal} planned images across ${setPhrase}`;
+  const scorePhrase = `${state.correct}/${total} correct (${accuracy}% accuracy)`;
+  const timePhrase = `${formatTime(state.elapsedSeconds)} with a response rate of ${rate} images/min`;
+  const errorPhrase = missedCount === 0 ? "no left/right discrimination errors" : `${missedCount} left/right discrimination ${missedCount === 1 ? "error" : "errors"}`;
+  const noteOptions = [
+    `Patient participated in STRIVE Independence left-right discrimination activity and was instructed to identify whether each image showed a left or right hand. Patient ${participationPhrase}, scoring ${scorePhrase} in ${timePhrase}, with ${errorPhrase}. Performance indicates current visual laterality discrimination accuracy and processing speed during a timed recognition task. Continue left-right discrimination training with graded image volume and monitor accuracy, response speed, and consistency across sets.`,
+    `Patient engaged in a timed hand laterality task targeting left/right discrimination. Patient ${participationPhrase} and identified ${scorePhrase}; total task time was ${timePhrase}, with ${errorPhrase}. Patient demonstrated measurable performance in visual discrimination, attention, and rapid motor response selection. Continue practice using STRIVE Independence tasks and adjust set/image count based on accuracy and fatigue.`,
+    `Patient completed left-right hand identification practice to support body schema, laterality, and visual perceptual skills. Patient ${participationPhrase}, achieved ${scorePhrase} in ${timePhrase}, and session included ${errorPhrase}. Results suggest functional level of accuracy and speed for left/right discrimination under timed conditions. Progress or maintain task demands by modifying sets, image count, and pacing during future sessions.`,
+    `Patient worked on a structured left-right discrimination activity using randomized hand images. Patient ${participationPhrase}, with ${scorePhrase}, task time/rate of ${timePhrase}, and ${errorPhrase}. Results give a practical snapshot of laterality recognition, attention to visual details, and response efficiency. Continue practice with repeated trials and compare performance across sessions to guide grading.`,
+    `Patient was presented with randomized hand images and asked to select left or right for each stimulus. Patient ${participationPhrase}; score was ${scorePhrase}, time/rate was ${timePhrase}, and errors totaled ${missedCount}. Patient demonstrated current capacity for timed left-right visual discrimination with documented accuracy and speed. Continue left-right discrimination practice and increase or decrease set volume according to performance and clinical tolerance.`,
+    `Patient engaged in left-right discrimination task as part of STRIVE Independence visual perceptual training. Patient ${participationPhrase}, correctly identifying ${scorePhrase} with total time/rate of ${timePhrase} and ${errorPhrase}. Performance reflects visual scanning, laterality judgment, sustained attention, and decision speed during a structured task. Continue task-based training and use accuracy/time data to support ongoing documentation and progression.`,
+    `Patient practiced identifying left versus right hand images in a timed therapeutic activity. Patient ${participationPhrase} and scored ${scorePhrase}; completion time was ${timePhrase}, with ${errorPhrase}. Patient showed quantifiable left-right discrimination performance with objective measures for accuracy and efficiency. Continue STRIVE Independence laterality training, repeat comparable sets, and track changes in score, time, and error pattern over time.`
+  ];
+
+  return noteOptions[Math.floor(Math.random() * noteOptions.length)];
+}
+
+async function copySoapNote(note, button) {
+  const originalLabel = button.textContent;
+
+  try {
+    await navigator.clipboard.writeText(note);
+    button.textContent = "Copied";
+  } catch (error) {
+    button.textContent = "Select text to copy";
+  }
+
+  setTimeout(() => {
+    button.textContent = originalLabel;
+  }, 1600);
 }
 
 function formatTime(totalSeconds) {

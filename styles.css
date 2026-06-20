@@ -414,6 +414,16 @@ h2 {
   gap: 8px;
 }
 
+.field select {
+  min-height: 48px;
+  border: 1px solid var(--line-m);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--navy);
+  padding: 10px 12px;
+  font-weight: 800;
+}
+
 .slider-control {
   max-width: none;
   margin-top: 22px;
@@ -427,8 +437,8 @@ h2 {
 
 .slider-value strong {
   color: var(--blue);
-  font-family: "DM Mono", monospace;
   font-size: 1.55rem;
+  font-weight: 900;
 }
 
 #trialCount {
@@ -477,8 +487,8 @@ h2 {
   grid-template-columns: repeat(5, 1fr);
   margin-top: 9px;
   color: var(--muted);
-  font-family: "DM Mono", monospace;
   font-size: 0.78rem;
+  font-weight: 800;
   letter-spacing: 0.04em;
 }
 
@@ -492,6 +502,50 @@ h2 {
 
 .slider-stops span:last-child {
   text-align: right;
+}
+
+.session-settings {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  align-items: stretch;
+  margin-top: 20px;
+}
+
+.ai-toggle {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-m);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.64);
+  cursor: pointer;
+}
+
+.ai-toggle input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--blue);
+}
+
+.ai-toggle strong,
+.ai-toggle small {
+  display: block;
+}
+
+.ai-toggle strong {
+  color: var(--navy);
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ai-toggle small {
+  color: var(--muted-s);
+  line-height: 1.35;
 }
 
 .load-summary {
@@ -727,6 +781,51 @@ h2 {
   padding-left: 20px;
 }
 
+.soap-panel {
+  margin: 22px 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--line-m);
+}
+
+.soap-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.soap-option {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line-m);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.soap-option p {
+  color: var(--muted-s);
+  line-height: 1.55;
+}
+
+.copy-soap-button {
+  justify-self: start;
+  min-height: 40px;
+  border: 1px solid var(--line-m);
+  border-radius: 7px;
+  background: rgba(27, 79, 168, 0.08);
+  color: var(--blue);
+  padding: 0 14px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.copy-soap-button:hover {
+  border-color: rgba(27, 79, 168, 0.42);
+  background: rgba(27, 79, 168, 0.13);
+}
+
 @media (max-width: 760px) {
   .home-layout,
   .module-header,
@@ -761,6 +860,10 @@ h2 {
 
   .launch-panel .primary-button {
     width: 100%;
+  }
+
+  .session-settings {
+    grid-template-columns: 1fr;
   }
 
   .progress-row {
