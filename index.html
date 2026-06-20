@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>STRIVE Independence | Left-Right Discrimination</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css?v=contact-nav-1" />
+  </head>
+  <body>
+    <nav aria-label="STRIVE Independence">
+      <a class="nav-logo" href="https://www.striveptlv.com/independence/dashboard.html">
+        <img class="logo-img" src="./logo.png" alt="STRIVE Independence logo" />
+        <div class="logo-wrap">
+          <span class="logo-text">STRIVE</span>
+          <span class="logo-sub">Independence</span>
+        </div>
+      </a>
+      <a class="contact-button" href="https://www.striveptlv.com/independence/contact.html">Contact</a>
+    </nav>
+
+    <main class="app-shell">
+      <div class="home-layout" id="homeLayout">
+        <div class="hero-column">
+          <header class="module-header">
+            <div class="module-copy">
+              <p class="section-tag" id="moduleTag">Left-Right Discrimination</p>
+              <h1 id="appTitle" class="brand-question">
+                <span class="left-word">Left</span>
+                <span class="or-word">or</span>
+                <span class="right-word">Right</span><span class="question-mark">?</span>
+              </h1>
+              <p class="hero-desc" id="moduleDescription">
+                Timed left-right discrimination practice for laterality, visual discrimination, and response speed.
+              </p>
+            </div>
+          </header>
+
+          <div class="launch-panel">
+            <button class="primary-button" id="startButton" type="button">Start Session</button>
+          </div>
+        </div>
+
+        <section class="setup-panel" id="setupPanel">
+          <div class="setup-copy">
+            <div class="section-tag">Session Setup</div>
+            <h2>Configure Task</h2>
+            <p>Choose the number of pictures, review the directions with the patient, then begin.</p>
+          </div>
+
+          <div class="setup-grid">
+            <div>
+              <div class="instructions">
+                <h3>Instructions</h3>
+                <ol>
+                  <li>Look at each hand picture.</li>
+                  <li>Decide whether it shows a left hand or a right hand.</li>
+                  <li>Press the matching button as quickly and accurately as you can.</li>
+                </ol>
+              </div>
+
+              <div class="slider-control">
+                <label class="field" for="trialCount">
+                  <span>Pictures to show</span>
+                </label>
+                <div class="slider-value"><strong id="trialCountValue">10</strong> pictures</div>
+                <input id="trialCount" type="range" min="10" max="50" step="10" value="10" list="trialStops" />
+                <datalist id="trialStops">
+                  <option value="10" label="10"></option>
+                  <option value="20" label="20"></option>
+                  <option value="30" label="30"></option>
+                  <option value="40" label="40"></option>
+                  <option value="50" label="50"></option>
+                </datalist>
+                <div class="slider-stops" aria-hidden="true">
+                  <span>10</span>
+                  <span>20</span>
+                  <span>30</span>
+                  <span>40</span>
+                  <span>50</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section class="task-panel hidden" id="taskPanel" aria-label="Identify hand side">
+        <div class="progress-row">
+          <span id="progressText">Picture 1 of 10</span>
+          <span class="task-timer" aria-live="polite">Time <strong id="timer">00:00</strong></span>
+          <span id="scoreText">Correct: 0</span>
+        </div>
+
+        <div class="image-stage">
+          <img id="handImage" alt="Hand to identify" />
+          <div class="demo-hand hidden" id="demoHand" aria-hidden="true"></div>
+        </div>
+
+        <div class="answer-row" aria-label="Answer choices">
+          <button class="answer-button left-choice" data-answer="left" type="button">Left</button>
+          <button class="answer-button right-choice" data-answer="right" type="button">Right</button>
+        </div>
+
+        <button class="quiet-button" id="endButton" type="button">End Session</button>
+      </section>
+
+      <section class="results-panel hidden" id="resultsPanel" aria-live="polite">
+        <div class="section-tag">Results</div>
+        <h2 id="resultsTitle">Session Complete</h2>
+
+        <div class="metric-grid">
+          <div>
+            <span>Score</span>
+            <strong id="scoreMetric">0 / 0</strong>
+          </div>
+          <div>
+            <span>Accuracy</span>
+            <strong id="accuracyMetric">0%</strong>
+          </div>
+          <div>
+            <span>Time</span>
+            <strong id="timeMetric">00:00</strong>
+          </div>
+          <div>
+            <span>Rate</span>
+            <strong id="rateMetric">0 / min</strong>
+          </div>
+        </div>
+
+        <div class="missed-list" id="missedList"></div>
+
+        <div class="actions">
+          <button class="primary-button" id="restartButton" type="button">Run Again</button>
+          <button class="secondary-button" id="newSetupButton" type="button">New Setup</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app.js?v=contact-nav-1"></script>
+  </body>
+</html>
