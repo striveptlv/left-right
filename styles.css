@@ -56,7 +56,8 @@ body::before {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -70,7 +71,8 @@ button:disabled {
 }
 
 button:focus-visible,
-input:focus-visible {
+input:focus-visible,
+select:focus-visible {
   outline: 4px solid rgba(37, 99, 235, 0.22);
   outline-offset: 3px;
 }
@@ -139,6 +141,37 @@ nav {
   font-weight: 700;
   letter-spacing: 0.26em;
   text-transform: uppercase;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.language-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.language-control span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.language-control select {
+  min-height: 42px;
+  border: 1px solid var(--line-m);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--navy);
+  padding: 8px 34px 8px 11px;
+  font-size: 0.8rem;
+  font-weight: 900;
 }
 
 .contact-button {
@@ -262,7 +295,7 @@ h1 {
   font-size: clamp(3.35rem, 8vw, 7.4rem);
   font-weight: 900;
   line-height: 0.88;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -277,6 +310,32 @@ h1 em {
   align-items: baseline;
   justify-content: center;
   gap: 0.18em;
+  max-width: 100%;
+}
+
+.brand-question.is-stacked {
+  flex-direction: column;
+  align-items: center;
+  gap: 0.03em;
+  font-size: clamp(2.65rem, 5.8vw, 5.5rem);
+  line-height: 0.82;
+}
+
+.brand-question.is-stacked .left-word,
+.brand-question.is-stacked .right-cluster {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.brand-question.is-stacked .or-word {
+  font-size: 0.26em;
+  line-height: 1;
+}
+
+.right-cluster {
+  display: inline-flex;
+  align-items: baseline;
 }
 
 .or-word,
@@ -304,7 +363,7 @@ h2 {
   color: var(--navy);
   font-size: clamp(1.45rem, 2.7vw, 2rem);
   font-weight: 900;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -906,6 +965,38 @@ h2 {
     padding: 0 6vw;
   }
 
+  .nav-logo {
+    gap: 8px;
+  }
+
+  .logo-img {
+    width: 38px;
+    height: 38px;
+  }
+
+  .logo-text {
+    font-size: 17px;
+  }
+
+  .logo-sub {
+    font-size: 6.5px;
+  }
+
+  .nav-actions {
+    gap: 7px;
+  }
+
+  .language-control span {
+    display: none;
+  }
+
+  .language-control select {
+    width: 72px;
+    min-height: 40px;
+    padding-inline: 8px;
+    font-size: 0.72rem;
+  }
+
   .contact-button {
     padding-inline: 14px;
     font-size: 11px;
@@ -918,6 +1009,11 @@ h2 {
 
   .brand-question {
     gap: 0.14em;
+  }
+
+  .brand-question.is-stacked {
+    font-size: clamp(2.75rem, 13.4vw, 4.85rem);
+    line-height: 0.84;
   }
 
   .launch-panel .primary-button {

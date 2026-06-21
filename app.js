@@ -56,6 +56,113 @@ const DIRECT_IMAGES = [
   { side: "right", name: "pexels-shotbyrain-4061223.jpg", url: "Right/pexels-shotbyrain-4061223.jpg" }
 ];
 
+const TEXT = {
+  en: {
+    pageTitle: "STRIVE Independence | Left-Right Discrimination",
+    moduleTag: "Left-Right Discrimination",
+    left: "Left",
+    or: "or",
+    right: "Right",
+    moduleDescription: "Timed left-right discrimination practice for laterality, visual discrimination, and response speed.",
+    startSession: "Start Session",
+    setupTag: "Session Setup",
+    setupTitle: "Configure Task",
+    setupDescription: "Choose the number of pictures, review the directions with the patient, then begin.",
+    instructionsTitle: "Instructions",
+    instructions: [
+      "Look at each hand picture.",
+      "Decide whether it shows a left hand or a right hand.",
+      "Press the matching button as quickly and accurately as you can.",
+      "When STRIVE AI is on, a short note will be generated from the session results."
+    ],
+    imagesPerSet: "Images per set",
+    language: "Language",
+    sets: "Sets",
+    setSingular: "set",
+    setPlural: "sets",
+    aiDescription: "Use the session score, timing, and errors to draft a quick note after the activity.",
+    identifyHandSide: "Identify hand side",
+    answerChoices: "Answer choices",
+    picture: "Picture",
+    of: "of",
+    time: "Time",
+    correct: "Correct",
+    contact: "Contact",
+    contactAria: "Contact STRIVE Independence",
+    endSession: "End Session",
+    endSessionAria: "End current session",
+    results: "Results",
+    sessionComplete: "Session Complete",
+    score: "Score",
+    accuracy: "Accuracy",
+    rate: "Rate",
+    perMinute: "/ min",
+    noMissedItems: "No missed items.",
+    missedItems: "Missed items",
+    photo: "photo",
+    photos: "photos",
+    missedAlt: "Missed hand item from set {set}, picture {picture}",
+    soapNote: "SOAP Note",
+    copySoapNote: "Copy SOAP note",
+    copied: "Copied",
+    selectTextToCopy: "Select text to copy",
+    runAgain: "Run Again",
+    newSetup: "New Setup"
+  },
+  es: {
+    pageTitle: "STRIVE Independence | Discriminación Izquierda-Derecha",
+    moduleTag: "Discriminación Izquierda-Derecha",
+    left: "Izquierda",
+    or: "o",
+    right: "Derecha",
+    moduleDescription: "Práctica cronometrada de discriminación izquierda-derecha para lateralidad, discriminación visual y velocidad de respuesta.",
+    startSession: "Iniciar Sesión",
+    setupTag: "Configuración",
+    setupTitle: "Configurar Actividad",
+    setupDescription: "Elija la cantidad de imágenes, revise las instrucciones con el paciente y luego comience.",
+    instructionsTitle: "Instrucciones",
+    instructions: [
+      "Mire cada imagen de la mano.",
+      "Decida si muestra una mano izquierda o una mano derecha.",
+      "Presione el botón correspondiente lo más rápido y preciso posible.",
+      "Cuando STRIVE AI está activado, se generará una nota breve con los resultados de la sesión."
+    ],
+    imagesPerSet: "Imágenes por serie",
+    language: "Idioma",
+    sets: "Series",
+    setSingular: "serie",
+    setPlural: "series",
+    aiDescription: "Usa la puntuación, el tiempo y los errores de la sesión para redactar una nota clínica breve después de la actividad.",
+    identifyHandSide: "Identificar lado de la mano",
+    answerChoices: "Opciones de respuesta",
+    picture: "Imagen",
+    of: "de",
+    time: "Tiempo",
+    correct: "Correctas",
+    contact: "Contacto",
+    contactAria: "Contactar a STRIVE Independence",
+    endSession: "Terminar Sesión",
+    endSessionAria: "Terminar sesión actual",
+    results: "Resultados",
+    sessionComplete: "Sesión Completa",
+    score: "Puntuación",
+    accuracy: "Precisión",
+    rate: "Ritmo",
+    perMinute: "/ min",
+    noMissedItems: "No hubo errores.",
+    missedItems: "Imágenes incorrectas",
+    photo: "foto",
+    photos: "fotos",
+    missedAlt: "Imagen incorrecta de mano de la serie {set}, imagen {picture}",
+    soapNote: "Nota Clínica",
+    copySoapNote: "Copiar nota",
+    copied: "Copiado",
+    selectTextToCopy: "Seleccione el texto para copiar",
+    runAgain: "Repetir",
+    newSetup: "Nueva Configuración"
+  }
+};
+
 const state = {
   images: DIRECT_IMAGES,
   trials: [],
@@ -68,7 +175,8 @@ const state = {
   startedAt: 0,
   timerId: null,
   elapsedSeconds: 0,
-  demoMode: false
+  demoMode: false,
+  language: "en"
 };
 
 const elements = {
@@ -80,28 +188,49 @@ const elements = {
   appTitle: document.querySelector("#appTitle"),
   moduleTag: document.querySelector("#moduleTag"),
   moduleDescription: document.querySelector("#moduleDescription"),
+  setupTag: document.querySelector("#setupTag"),
+  setupTitle: document.querySelector("#setupTitle"),
+  setupDescription: document.querySelector("#setupDescription"),
+  instructionsTitle: document.querySelector("#instructionsTitle"),
+  instructionsList: document.querySelector("#instructionsList"),
+  imagesPerSetLabel: document.querySelector("#imagesPerSetLabel"),
+  languageSelect: document.querySelector("#languageSelect"),
+  languageLabel: document.querySelector("#languageLabel"),
   trialCount: document.querySelector("#trialCount"),
   trialCountValue: document.querySelector("#trialCountValue"),
+  setsLabel: document.querySelector("#setsLabel"),
   setCount: document.querySelector("#setCount"),
   striveAiToggle: document.querySelector("#striveAiToggle"),
+  aiDescription: document.querySelector("#aiDescription"),
   startButton: document.querySelector("#startButton"),
+  timerLabel: document.querySelector("#timerLabel"),
   timer: document.querySelector("#timer"),
   progressText: document.querySelector("#progressText"),
   scoreText: document.querySelector("#scoreText"),
   handImage: document.querySelector("#handImage"),
   demoHand: document.querySelector("#demoHand"),
+  answerRow: document.querySelector(".answer-row"),
+  answerButtons: document.querySelectorAll("[data-answer]"),
+  resultsTag: document.querySelector("#resultsTag"),
+  resultsTitle: document.querySelector("#resultsTitle"),
+  scoreLabel: document.querySelector("#scoreLabel"),
+  accuracyLabel: document.querySelector("#accuracyLabel"),
+  timeLabel: document.querySelector("#timeLabel"),
+  rateLabel: document.querySelector("#rateLabel"),
   scoreMetric: document.querySelector("#scoreMetric"),
   accuracyMetric: document.querySelector("#accuracyMetric"),
   timeMetric: document.querySelector("#timeMetric"),
   rateMetric: document.querySelector("#rateMetric"),
   missedList: document.querySelector("#missedList"),
   soapPanel: document.querySelector("#soapPanel"),
+  soapTitle: document.querySelector("#soapTitle"),
   soapList: document.querySelector("#soapList"),
   restartButton: document.querySelector("#restartButton"),
   newSetupButton: document.querySelector("#newSetupButton")
 };
 
 elements.trialCount.addEventListener("input", updateStartState);
+elements.languageSelect.addEventListener("change", updateLanguage);
 elements.setCount.addEventListener("change", updateStartState);
 elements.striveAiToggle.addEventListener("change", updateStartState);
 elements.startButton.addEventListener("click", startSession);
@@ -114,7 +243,7 @@ elements.navAction.addEventListener("click", (event) => {
   finishSession();
 });
 
-document.querySelectorAll("[data-answer]").forEach((button) => {
+elements.answerButtons.forEach((button) => {
   button.addEventListener("click", () => submitAnswer(button.dataset.answer));
 });
 
@@ -126,6 +255,11 @@ function updateStartState() {
   state.striveAiEnabled = elements.striveAiToggle.checked;
   elements.startButton.disabled = state.images.length === 0 || state.imagesPerSet < 1 || state.setCount < 1;
   elements.trialCountValue.textContent = state.imagesPerSet;
+}
+
+function updateLanguage() {
+  state.language = elements.languageSelect.value === "es" ? "es" : "en";
+  applyLanguage();
 }
 
 function startSession() {
@@ -158,9 +292,10 @@ function startSession() {
 }
 
 function showCurrentTrial() {
+  const copy = getCopy();
   const trial = state.trials[state.currentIndex];
-  elements.progressText.textContent = `Set ${trial.setNumber} of ${state.setCount} | Picture ${trial.itemNumber} of ${state.imagesPerSet}`;
-  elements.scoreText.textContent = `Correct: ${state.correct}`;
+  elements.progressText.textContent = `${copy.sets} ${trial.setNumber} ${copy.of} ${state.setCount} | ${copy.picture} ${trial.itemNumber} ${copy.of} ${state.imagesPerSet}`;
+  elements.scoreText.textContent = `${copy.correct}: ${state.correct}`;
   elements.demoHand.classList.add("hidden");
   elements.handImage.classList.remove("hidden");
   elements.handImage.src = trial.url;
@@ -192,6 +327,7 @@ function submitAnswer(answer) {
 }
 
 function finishSession() {
+  const copy = getCopy();
   clearInterval(state.timerId);
   updateTimer();
 
@@ -209,8 +345,8 @@ function finishSession() {
   elements.scoreMetric.textContent = `${state.correct} / ${total}`;
   elements.accuracyMetric.textContent = `${accuracy}%`;
   elements.timeMetric.textContent = formatTime(state.elapsedSeconds);
-  elements.rateMetric.textContent = `${rate} / min`;
-  elements.scoreText.textContent = `Correct: ${state.correct}`;
+  elements.rateMetric.textContent = `${rate} ${copy.perMinute}`;
+  elements.scoreText.textContent = `${copy.correct}: ${state.correct}`;
 
   renderMissedItems();
   renderSoapNotes({
@@ -223,18 +359,19 @@ function finishSession() {
 }
 
 function renderMissedItems() {
+  const copy = getCopy();
   const missed = state.answers.filter((answer) => !answer.isCorrect);
 
   if (!missed.length) {
-    elements.missedList.innerHTML = '<div class="missed-empty">No missed items.</div>';
+    elements.missedList.innerHTML = `<div class="missed-empty">${copy.noMissedItems}</div>`;
     return;
   }
 
   const photoItems = missed
     .map((item) => `
       <figure class="missed-photo">
-        <img src="${escapeHtml(item.url)}" alt="Missed hand item from set ${item.setNumber}, picture ${item.itemNumber}" loading="lazy" />
-        <figcaption>Set ${item.setNumber} · Picture ${item.itemNumber}</figcaption>
+        <img src="${escapeHtml(item.url)}" alt="${escapeHtml(formatText(copy.missedAlt, { set: item.setNumber, picture: item.itemNumber }))}" loading="lazy" />
+        <figcaption>${copy.sets} ${item.setNumber} · ${copy.picture} ${item.itemNumber}</figcaption>
       </figure>
     `)
     .join("");
@@ -242,8 +379,8 @@ function renderMissedItems() {
   elements.missedList.innerHTML = `
     <details class="missed-details">
       <summary>
-        <span>Missed items</span>
-        <strong>${missed.length} ${missed.length === 1 ? "photo" : "photos"}</strong>
+        <span>${copy.missedItems}</span>
+        <strong>${missed.length} ${missed.length === 1 ? copy.photo : copy.photos}</strong>
       </summary>
       <div class="missed-photo-grid">${photoItems}</div>
     </details>
@@ -307,30 +444,115 @@ function buildSessionTrials(imagesPerSet, setCount) {
 }
 
 function initializeImages() {
+  applyLanguage();
   setNavAction("contact");
   setQuestionHeader();
   updateStartState();
 }
 
 function setNavAction(mode) {
+  const copy = getCopy();
   if (mode === "session") {
-    elements.navAction.textContent = "End Session";
+    elements.navAction.textContent = copy.endSession;
     elements.navAction.href = "#end-session";
-    elements.navAction.setAttribute("aria-label", "End current session");
+    elements.navAction.setAttribute("aria-label", copy.endSessionAria);
     return;
   }
 
-  elements.navAction.textContent = "Contact";
+  elements.navAction.textContent = copy.contact;
   elements.navAction.href = "https://www.striveptlv.com/independence/contact.html";
-  elements.navAction.setAttribute("aria-label", "Contact STRIVE Independence");
+  elements.navAction.setAttribute("aria-label", copy.contactAria);
 }
 
 function setQuestionHeader() {
+  const copy = getCopy();
+  const isSpanish = state.language === "es";
+  elements.appTitle.classList.toggle("is-stacked", isSpanish);
+
+  if (isSpanish) {
+    elements.appTitle.innerHTML = `
+      <span class="left-word">${copy.left}</span>
+      <span class="or-word">${copy.or}</span>
+      <span class="right-cluster"><span class="right-word">${copy.right}</span><span class="question-mark">?</span></span>
+    `;
+    return;
+  }
+
   elements.appTitle.innerHTML = `
-    <span class="left-word">Left</span>
-    <span class="or-word">or</span>
-    <span class="right-word">Right</span><span class="question-mark">?</span>
+    <span class="left-word">${copy.left}</span>
+    <span class="or-word">${copy.or}</span>
+    <span class="right-word">${copy.right}</span><span class="question-mark">?</span>
   `;
+}
+
+function applyLanguage() {
+  const copy = getCopy();
+  document.documentElement.lang = state.language;
+  document.title = copy.pageTitle;
+
+  elements.moduleTag.textContent = copy.moduleTag;
+  elements.moduleDescription.textContent = copy.moduleDescription;
+  elements.startButton.textContent = copy.startSession;
+  elements.setupTag.textContent = copy.setupTag;
+  elements.setupTitle.textContent = copy.setupTitle;
+  elements.setupDescription.textContent = copy.setupDescription;
+  elements.instructionsTitle.textContent = copy.instructionsTitle;
+  elements.instructionsList.innerHTML = copy.instructions.map((item) => `<li>${item}</li>`).join("");
+  elements.imagesPerSetLabel.textContent = copy.imagesPerSet;
+  elements.languageLabel.textContent = copy.language;
+  elements.setsLabel.textContent = copy.sets;
+  elements.aiDescription.textContent = copy.aiDescription;
+  elements.timerLabel.textContent = copy.time;
+  elements.taskPanel.setAttribute("aria-label", copy.identifyHandSide);
+  elements.answerRow.setAttribute("aria-label", copy.answerChoices);
+  elements.resultsTag.textContent = copy.results;
+  elements.resultsTitle.textContent = copy.sessionComplete;
+  elements.scoreLabel.textContent = copy.score;
+  elements.accuracyLabel.textContent = copy.accuracy;
+  elements.timeLabel.textContent = copy.time;
+  elements.rateLabel.textContent = copy.rate;
+  elements.soapPanel.setAttribute("aria-label", `${copy.soapNote} options`);
+  elements.soapPanel.querySelector(".section-tag").textContent = "STRIVE AI";
+  elements.soapTitle.textContent = copy.soapNote;
+  elements.restartButton.textContent = copy.runAgain;
+  elements.newSetupButton.textContent = copy.newSetup;
+
+  elements.answerButtons.forEach((button) => {
+    button.textContent = button.dataset.answer === "left" ? copy.left : copy.right;
+  });
+
+  updateSetOptions();
+  setQuestionHeader();
+  setNavAction(document.body.classList.contains("session-active") ? "session" : "contact");
+
+  if (!elements.taskPanel.classList.contains("hidden") && state.trials.length) {
+    showCurrentTrial();
+  }
+
+  if (!elements.resultsPanel.classList.contains("hidden")) {
+    const total = state.answers.length;
+    const minutes = Math.max(state.elapsedSeconds / 60, 1 / 60);
+    const rate = total ? (total / minutes).toFixed(1) : "0.0";
+    elements.rateMetric.textContent = `${rate} ${copy.perMinute}`;
+    elements.scoreText.textContent = `${copy.correct}: ${state.correct}`;
+    renderMissedItems();
+  }
+}
+
+function updateSetOptions() {
+  const copy = getCopy();
+  Array.from(elements.setCount.options).forEach((option) => {
+    const count = Number.parseInt(option.value, 10);
+    option.textContent = `${count} ${count === 1 ? copy.setSingular : copy.setPlural}`;
+  });
+}
+
+function getCopy() {
+  return TEXT[state.language] || TEXT.en;
+}
+
+function formatText(template, values) {
+  return Object.entries(values).reduce((text, [key, value]) => text.replaceAll(`{${key}}`, value), template);
 }
 
 function renderSoapNotes(summary) {
@@ -351,7 +573,7 @@ function renderSoapNotes(summary) {
   const copyButton = document.createElement("button");
   copyButton.className = "copy-soap-button";
   copyButton.type = "button";
-  copyButton.textContent = "Copy SOAP note";
+  copyButton.textContent = getCopy().copySoapNote;
   copyButton.addEventListener("click", () => copySoapNote(note, copyButton));
 
   option.append(paragraph, copyButton);
@@ -395,8 +617,8 @@ function getSpeedInterpretation(total, missedCount) {
 
   if (secondsPerImage < SPEED_NORM_MIN_SECONDS) {
     const accuracyContext = missedCount > 0
-      ? "with errors present, which may suggest the patient rushed the activity and prioritized speed over accuracy"
-      : "while maintaining accurate recognition during this trial";
+      ? "errors were present, which may suggest the patient rushed the activity and prioritized speed over accuracy"
+      : "accurate recognition was maintained during this trial";
     return `Average speed was ${roundedSeconds} seconds per image, faster than average (${normPhrase}); ${accuracyContext}.`;
   }
 
@@ -448,12 +670,13 @@ function getSetTrendInterpretation() {
 
 async function copySoapNote(note, button) {
   const originalLabel = button.textContent;
+  const copy = getCopy();
 
   try {
     await navigator.clipboard.writeText(note);
-    button.textContent = "Copied";
+    button.textContent = copy.copied;
   } catch (error) {
-    button.textContent = "Select text to copy";
+    button.textContent = copy.selectTextToCopy;
   }
 
   setTimeout(() => {
