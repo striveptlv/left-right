@@ -961,6 +961,28 @@ h2 {
     gap: 14px;
   }
 
+  .app-shell {
+    padding: 18px 4vw 44px;
+  }
+
+  .module-header,
+  .setup-panel,
+  .results-panel {
+    border-radius: 10px;
+  }
+
+  .module-header {
+    padding: 1rem;
+  }
+
+  .section-tag {
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 100%;
+    text-align: center;
+    line-height: 1.25;
+  }
+
   nav {
     padding: 0 6vw;
   }
@@ -1012,8 +1034,8 @@ h2 {
   }
 
   .brand-question.is-stacked {
-    font-size: clamp(2.75rem, 13.4vw, 4.85rem);
-    line-height: 0.84;
+    font-size: clamp(2.2rem, 11.2vw, 3.8rem);
+    line-height: 0.9;
   }
 
   .launch-panel .primary-button {
@@ -1032,5 +1054,73 @@ h2 {
     order: 3;
     grid-column: 1 / -1;
     text-align: center;
+  }
+}
+
+@media (max-width: 430px) {
+  nav {
+    padding: 0 12px;
+  }
+
+  .nav-logo {
+    gap: 7px;
+  }
+
+  .logo-img {
+    width: 34px;
+    height: 34px;
+  }
+
+  .logo-text {
+    font-size: 15px;
+    letter-spacing: 0.07em;
+  }
+
+  .logo-sub {
+    display: none;
+  }
+
+  .nav-actions {
+    gap: 6px;
+  }
+
+  .language-control select {
+    width: 62px;
+    min-height: 38px;
+    padding-inline: 6px;
+    font-size: 0.68rem;
+  }
+
+  .contact-button {
+    min-height: 38px;
+    padding-inline: 10px;
+    font-size: 10px;
+  }
+
+  .brand-question.is-stacked {
+    font-size: clamp(2.05rem, 10.8vw, 3rem);
+    line-height: 0.92;
+  }
+
+  .hero-desc {
+    font-size: 0.98rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .logo-img {
+    display: none;
+  }
+
+  .language-control select {
+    width: 58px;
+  }
+
+  .contact-button {
+    padding-inline: 8px;
+  }
+
+  .brand-question.is-stacked {
+    font-size: clamp(1.88rem, 10.2vw, 2.45rem);
   }
 }
