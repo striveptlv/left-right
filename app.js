@@ -488,6 +488,7 @@ function setQuestionHeader() {
 function applyLanguage() {
   const copy = getCopy();
   document.documentElement.lang = state.language;
+  document.body.dataset.language = state.language;
   document.title = copy.pageTitle;
 
   elements.moduleTag.textContent = copy.moduleTag;
